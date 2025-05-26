@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ImageIcon, Loader2, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { generateWordVisualization } from "@/lib/image-generation"
 
 interface WordVisualizationProps {
   word: string
@@ -11,15 +12,7 @@ interface WordVisualizationProps {
   onImageGenerated?: (imageUrl: string) => void
 }
 
-// Заглушка для генерации изображений
-const generateMockImage = async (word: string): Promise<string> => {
-  // Имитация задержки API
-  await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000))
-  
-  // Возвращаем URL заглушки с текстом
-  const encodedWord = encodeURIComponent(word)
-  return `https://via.placeholder.com/300x200/6366f1/ffffff?text=${encodedWord}`
-}
+// Удалена заглушка - теперь используем сервис генерации изображений
 
 export function WordVisualization({ word, language, onImageGenerated }: WordVisualizationProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -33,9 +26,9 @@ export function WordVisualization({ word, language, onImageGenerated }: WordVisu
     setError(null)
 
     try {
-      const url = await generateMockImage(word.trim())
-      setImageUrl(url)
-      onImageGenerated?.(url)
+      const result = await generateWordVisualization(word.trim(), language)
+      setImageUrl(result.url)
+      onImageGenerated?.(result.url)
     } catch (err) {
       setError("Ошибка при генерации изображения")
       console.error("Image generation error:", err)
